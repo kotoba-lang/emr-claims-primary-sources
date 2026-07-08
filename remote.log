@@ -1,0 +1,1 @@
+f337d680-7ada-4789-896a-f9c196f97cee bucket=gftdcojp-m365-annex chunk=50MiB datacenter=US encryption=none fileprefix=emr-claims-primary-sources/ host=s3.us-west-004.backblazeb2.com name=b2 port=443 protocol=https signature=v4 storageclass=STANDARD type=S3 timestamp=1783492250s
