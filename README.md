@@ -19,12 +19,23 @@ pointers, so a plain `git clone` of this repo is small; `datalad get
 jp-mhlw/*.pdf` (or `west annex-get`, from the west-managed superproject)
 fetches the real file content from B2.
 
-Scope: **Japan (JP) today, with US and EU expected to be added later** as
-those jurisdictions' EMR/claims implementations mature and need primary-source
-verification of their own identifier formats (e.g. US NPI check digit, EU
-health-insurance card / EHIC formats). Layout convention: one directory per
-jurisdiction (`jp-mhlw/`, and in the future `us-cms/`, `eu-*/` etc., named for
-the issuing authority).
+Scope: **Japan (JP) originally, now joined by an EU (`eu-ehds/`) directory**,
+with US still expected to be added later as that jurisdiction's EMR/claims
+implementation matures and needs primary-source verification of its own
+identifier formats (e.g. US NPI check digit). Layout convention: one
+directory per jurisdiction (`jp-mhlw/`, `eu-ehds/`, and in the future
+`us-cms/` etc., named for the issuing authority).
+
+**`eu-ehds/` is a curated verbatim-excerpt archive, not a full-text/PDF
+mirror** like `jp-mhlw/`: EUR-Lex (the EU's official legislation portal)
+blocks automated `curl`/headless fetches behind an AWS WAF JS challenge, so
+its content was retrieved by navigating EUR-Lex in a real (non-automated)
+browser session and copying the rendered article text verbatim, rather than
+downloading an official PDF/HTML file whose bytes could be hashed the way
+the `jp-mhlw/` PDFs are. Each `eu-ehds/*.md` file documents this retrieval
+method, the CELEX identifier, and exactly which articles were and were not
+captured -- see `eu-ehds/ehds-article3-excerpt.md`'s own provenance section
+for the specifics of what "curated excerpt" means here.
 
 ## Contents
 
@@ -66,6 +77,40 @@ the issuing authority).
 - **Implementation consumer**: `kotoba-lang/insurance`,
   `src/kotoba/insurance/jp.cljc` (`hokensha-bangou-check-digit`,
   `parse-hokensha-bangou`).
+
+### `eu-ehds/ehds-article3-excerpt.md`
+
+- **Title**: Regulation (EU) 2025/327 of the European Parliament and of the
+  Council of 11 February 2025 on the European Health Data Space and
+  amending Directive 2011/24/EU and Regulation (EU) 2024/2847 (EHDS)
+- **Issuer**: European Parliament and Council of the European Union
+- **CELEX**: 32025R0327
+- **Official Journal**: L series, 2025/327, published 2025-03-05, entered
+  into force 2025-03-26
+- **Canonical URL**:
+  https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32025R0327
+- **Retrieved**: 2026-07-08, via a real Chrome browser session (see the
+  format note above -- EUR-Lex WAF-blocks automated fetches). This is a
+  plain-text `.md` file (small, goes straight into git via `text2git`, not
+  through the `b2` annex remote like the `jp-mhlw/*.pdf` binaries).
+- **Content captured verbatim**: Article 3 ("Right of natural persons to
+  access their personal electronic health data"), paragraphs 1-3 in full
+  (paragraph 3 is truncated where the source text itself continues past
+  the captured passage -- marked inline as `[text continues, not captured
+  further]`).
+- **Content confirmed to exist but NOT yet captured**: Article 14
+  (priority-categories list), Article 4 (electronic health data access
+  services), Article 15 (European electronic health record exchange
+  format) -- all three are cross-referenced by Article 3 but their own
+  operative text has not been retrieved. See the excerpt file's own
+  "Cross-references confirmed" section.
+- **Implementation consumer**: `kotoba-lang/com-hl7-fhir`,
+  `src/hl7_fhir/validation.cljc` / `src/hl7_fhir/main.cljc` -- this excerpt
+  is the primary source backing the `PatientAccessRequest` entity
+  (`priorityCategory` flag, `accessMethod` view/download enum, Art. 3(3)
+  restriction/reason cross-field rule). Per that repo's README, Article
+  14's priority-category list and Article 15's exchange-format schema are
+  explicitly NOT modeled because they are not yet captured here.
 
 ## Known open question (not resolved by these two sources)
 
