@@ -101,19 +101,53 @@ here.
   (paragraph 3 is truncated where the source text itself continues past
   the captured passage -- marked inline as `[text continues, not captured
   further]`).
-- **Content confirmed to exist but NOT yet captured**: Article 14
-  (priority-categories list), Article 4 (electronic health data access
-  services), Article 15 (European electronic health record exchange
-  format) -- all three are cross-referenced by Article 3 but their own
-  operative text has not been retrieved. See the excerpt file's own
-  "Cross-references confirmed" section.
+- **Content confirmed to exist but NOT yet captured**: Article 4
+  (electronic health data access services) is cross-referenced by Article 3
+  but its own operative text has not been retrieved. See the excerpt
+  file's own "Cross-references confirmed" section. (Article 14 and Article
+  15 -- also cross-referenced by Article 3 -- are now captured separately;
+  see `eu-ehds/ehds-article14-15-excerpt.md` below.)
 - **Implementation consumer**: `kotoba-lang/com-hl7-fhir`,
   `src/hl7_fhir/validation.cljc` / `src/hl7_fhir/main.cljc` -- this excerpt
   is the primary source backing the `PatientAccessRequest` entity
-  (`priorityCategory` flag, `accessMethod` view/download enum, Art. 3(3)
-  restriction/reason cross-field rule). Per that repo's README, Article
-  14's priority-category list and Article 15's exchange-format schema are
-  explicitly NOT modeled because they are not yet captured here.
+  (`priorityCategory` field, `accessMethod` view/download enum, Art. 3(3)
+  restriction/reason cross-field rule). As of the `eu-ehds/
+  ehds-article14-15-excerpt.md` addition below, `priorityCategory` is
+  modeled as the concrete 6-value Article 14(1)(a)-(f) enum rather than a
+  bare boolean flag; `accessMethod`'s Article 15 exchange-format reference
+  remains citation-only (see that excerpt's implementation-guidance note).
+
+### `eu-ehds/ehds-article14-15-excerpt.md`
+
+- **Title**: Regulation (EU) 2025/327 (EHDS), same instrument as the
+  Article 3 excerpt above.
+- **CELEX**: 32025R0327
+- **Canonical URL**:
+  https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32025R0327
+- **Retrieved**: 2026-07-08, via a real Chrome browser session (same
+  EUR-Lex WAF-bypass method as the Article 3 excerpt). Plain-text `.md`
+  file, `text2git`.
+- **Content captured verbatim**: Article 14 ("Priority categories of
+  personal electronic health data for primary use"), paragraph 1 in full
+  including the six-item list (a)-(f); Article 15 ("European electronic
+  health record exchange format"), the operative paragraph describing what
+  the Commission's future implementing acts must specify.
+- **Content confirmed to exist but NOT captured**: Annex I (the "main
+  characteristics" detail per Article 14(1) priority category, referenced
+  by Article 14(1) itself but not retrieved -- future work only if a more
+  granular per-category model is ever needed). The Commission implementing
+  acts that Article 15 delegates the actual exchange-format technical
+  specifications to have not been published/fetched at all -- **this
+  excerpt intentionally does not model an internal exchange-format
+  schema**, only the fact that Article 15 requires the Commission to
+  define one.
+- **Implementation consumer**: `kotoba-lang/com-hl7-fhir`,
+  `kotoba-lang/com-epic-fhir`, `kotoba-lang/com-eclinicalworks`,
+  `kotoba-lang/com-athenahealth` -- this excerpt is the primary source
+  backing the `PatientAccessRequest.priorityCategory` enum (6 values, one
+  per Article 14(1)(a)-(f)) in all four repos' schemas. `accessMethod`'s
+  Article 15 reference is deliberately left as a citation-only field in
+  all four -- see this excerpt's own "Critical implementation note".
 
 ### `eu-ehic/s2-decision-2009-annex1-excerpt.md`
 
