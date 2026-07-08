@@ -19,12 +19,12 @@ pointers, so a plain `git clone` of this repo is small; `datalad get
 jp-mhlw/*.pdf` (or `west annex-get`, from the west-managed superproject)
 fetches the real file content from B2.
 
-Scope: **Japan (JP) originally, now joined by an EU (`eu-ehds/`) directory**,
-with US still expected to be added later as that jurisdiction's EMR/claims
-implementation matures and needs primary-source verification of its own
-identifier formats (e.g. US NPI check digit). Layout convention: one
-directory per jurisdiction (`jp-mhlw/`, `eu-ehds/`, and in the future
-`us-cms/` etc., named for the issuing authority).
+Scope: **Japan (JP), EU (`eu-ehds/`), and now a first US directory
+(`us-naic/`)**. Layout convention: one directory per jurisdiction/issuer
+(`jp-mhlw/`, `eu-ehds/`, `us-naic/`, and in the future `us-cms/` etc., named
+for the issuing authority) — **not** one directory per identifier, since not
+every US claims identifier has an issuing authority to archive against (see
+`us-naic/`'s own note on why Payer ID has no corresponding directory here).
 
 **`eu-ehds/` is a curated verbatim-excerpt archive, not a full-text/PDF
 mirror** like `jp-mhlw/`: EUR-Lex (the EU's official legislation portal)
@@ -111,6 +111,43 @@ for the specifics of what "curated excerpt" means here.
   restriction/reason cross-field rule). Per that repo's README, Article
   14's priority-category list and Article 15's exchange-format schema are
   explicitly NOT modeled because they are not yet captured here.
+
+### `us-naic/naic-glossary-company-code-excerpt.md`
+
+- **Title**: Glossary of Insurance Terms — "Company Code" entry
+- **Issuer**: National Association of Insurance Commissioners (NAIC)
+- **Canonical URL**: https://content.naic.org/glossary-insurance-terms
+- **Retrieved**: 2026-07-08, via a direct `curl` fetch (this page, unlike
+  EUR-Lex, is not behind a JS/WAF challenge). Curated verbatim excerpt (like
+  `eu-ehds/`, not a full-page mirror like `jp-mhlw/`'s PDFs) because the
+  glossary page is one large alphabetical listing of hundreds of unrelated
+  terms; only the "Company Code" entry is relevant here. Full-page fetch
+  SHA-256 recorded in the excerpt file for provenance.
+- **Content captured verbatim**: "Company Code - a five-digit identifying
+  number assigned by NAIC, assigned to all insurance companies filing
+  financial data with NAIC."
+- **Negative finding also documented**: a full-text search of the raw HTML
+  for "check digit" returns zero matches — NAIC does not publish a
+  check-digit algorithm for this identifier (confirmed absence, not an
+  unconfirmed gap).
+- **Known open question not resolved by this source**: a secondary-source
+  claim that company codes below 10000 map to a legacy combined
+  property/casualty-statement category could not be confirmed — the one
+  candidate NAIC PDF fetched to check it came back as undecodable
+  compressed/font-subset text. Not implemented downstream.
+- **Implementation consumer**: `kotoba-lang/insurance`,
+  `src/kotoba/insurance/us.cljc` — `valid-naic-company-code?` /
+  `validate-naic-company-code`.
+- **Payer ID has no directory here**: US claims practice also uses a
+  "Payer ID" (routes an ASC X12 837 claim to a payer via a clearinghouse),
+  but research confirmed there is no single official registry or issuing
+  authority for it at all — every clearinghouse assigns its own values
+  independently — so there is no primary document to archive for it. See
+  `kotoba-lang/insurance`'s `src/kotoba/insurance/us.cljc` docstring for the
+  full negative finding and the one X12-standards-body structural
+  constraint (`AN 2/80`) that *is* corroborated (via third-party EDI
+  reference mirrors, since x12.org's own implementation guides are a paid
+  subscription product).
 
 ## Known open question (not resolved by these two sources)
 
