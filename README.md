@@ -19,23 +19,26 @@ pointers, so a plain `git clone` of this repo is small; `datalad get
 jp-mhlw/*.pdf` (or `west annex-get`, from the west-managed superproject)
 fetches the real file content from B2.
 
-Scope: **Japan (JP), EU (`eu-ehds/`), and now a first US directory
+Scope: **Japan (JP), EU (`eu-ehds/`, `eu-ehic/`), and a first US directory
 (`us-naic/`)**. Layout convention: one directory per jurisdiction/issuer
-(`jp-mhlw/`, `eu-ehds/`, `us-naic/`, and in the future `us-cms/` etc., named
-for the issuing authority) — **not** one directory per identifier, since not
-every US claims identifier has an issuing authority to archive against (see
-`us-naic/`'s own note on why Payer ID has no corresponding directory here).
+(`jp-mhlw/`, `eu-ehds/`, `eu-ehic/`, `us-naic/`, and in the future
+`us-cms/` etc., named for the issuing authority) — **not** one directory
+per identifier, since not every US claims identifier has an issuing
+authority to archive against (see `us-naic/`'s own note on why Payer ID has
+no corresponding directory here).
 
-**`eu-ehds/` is a curated verbatim-excerpt archive, not a full-text/PDF
-mirror** like `jp-mhlw/`: EUR-Lex (the EU's official legislation portal)
-blocks automated `curl`/headless fetches behind an AWS WAF JS challenge, so
-its content was retrieved by navigating EUR-Lex in a real (non-automated)
-browser session and copying the rendered article text verbatim, rather than
-downloading an official PDF/HTML file whose bytes could be hashed the way
-the `jp-mhlw/` PDFs are. Each `eu-ehds/*.md` file documents this retrieval
-method, the CELEX identifier, and exactly which articles were and were not
-captured -- see `eu-ehds/ehds-article3-excerpt.md`'s own provenance section
-for the specifics of what "curated excerpt" means here.
+**`eu-ehds/` and `eu-ehic/` are curated verbatim-excerpt archives, not
+full-text/PDF mirrors** like `jp-mhlw/`: EUR-Lex (the EU's official
+legislation portal) blocks automated `curl`/headless fetches behind an AWS
+WAF JS challenge, so their content was retrieved by navigating EUR-Lex in a
+real (non-automated) browser session and copying the rendered article text
+verbatim, rather than downloading an official PDF/HTML file whose bytes
+could be hashed the way the `jp-mhlw/` PDFs are. Each `eu-ehds/*.md` /
+`eu-ehic/*.md` file documents this retrieval method, the CELEX identifier,
+and exactly which articles/annexes were and were not captured -- see
+`eu-ehds/ehds-article3-excerpt.md`'s and `eu-ehic/s2-decision-2009-annex1-excerpt.md`'s
+own provenance sections for the specifics of what "curated excerpt" means
+here.
 
 ## Contents
 
@@ -111,6 +114,55 @@ for the specifics of what "curated excerpt" means here.
   restriction/reason cross-field rule). Per that repo's README, Article
   14's priority-category list and Article 15's exchange-format schema are
   explicitly NOT modeled because they are not yet captured here.
+
+### `eu-ehic/s2-decision-2009-annex1-excerpt.md`
+
+- **Title**: Decision No S2 of 12 June 2009 concerning the technical
+  specifications of the European Health Insurance Card (EHIC)
+- **Issuer**: Administrative Commission for the Coordination of Social
+  Security Systems
+- **CELEX**: 32010D0424(09)
+- **Official Journal**: C 106, 24.4.2010, p. 26-39
+- **Canonical URL**:
+  https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32010D0424(09)
+- **Retrieved**: 2026-07-08, via a real Chrome browser session (see the
+  format note above -- EUR-Lex WAF-blocks automated fetches on both the
+  modern `legal-content` HTML endpoint and the legacy `LexUriServ.do` PDF
+  endpoint; both were tried and both returned empty/challenge responses to
+  direct `curl`/`WebFetch`). Plain-text `.md` file, `text2git`.
+- **Content captured verbatim**: Annex I sections 1 (Introduction), 2
+  (Normative reference table), 3.2 (Overall structure), 3.4.2 (Caption
+  field list), 3.4.3 (Issuing state ID number, Field 2), 3.5 (Personal data
+  elements preamble -- the EN 1387/ISO 8859-1-4 character-set clause), and
+  the full field specifications for Personal identification number (Field
+  6), Identification number of the institution (Field 7 part 2), and
+  Logical identification number of the card (Field 8).
+- **Content confirmed to exist but NOT captured**: Annex II (Provisional
+  Replacement Certificate model -- image/layout only, no new identifier
+  fields per its own text), Decision No S1 of 12 June 2009 (companion
+  decision on issuance procedure, not the card's data model), and the two
+  external standards EN 1387 / EN 1867 that Decision No S2 itself cites but
+  does not reproduce (both non-free CEN/ISO standards, not fetched).
+- **Key finding**: there is **no single EU-wide standardized EHIC number**
+  -- the Decision's own text says the personal identification number field
+  is "the personal identification number detail used by the issuing Member
+  State" (nation-specific value, only its length is EU-standardized: up to
+  20 characters). This negative finding is corroborated from the
+  operational side by a separate European Commission report (Pacolet & De
+  Wispelaere, "The European Health Insurance Card -- Reference year 2015",
+  fetched directly via `curl` from `ec.europa.eu/social/BlobServlet` --
+  unlike EUR-Lex, not WAF-blocked), whose footnote 12 records Luxembourg
+  reissuing every EHIC in 2014 due to "a change of the composition of the
+  national personal identification number" -- i.e. the field tracks each
+  Member State's own national ID scheme, not a fixed EU format. The one
+  precisely EU-specified identifier is Field 8 (logical card ID): exactly
+  20 characters, a 10-character EN-1867-registered issuer identifier plus a
+  10-digit numeric serial number.
+- **Implementation consumer**: `kotoba-lang/insurance`,
+  `src/kotoba/insurance/eu.cljc` -- `valid-issuing-state-code?`,
+  `valid-personal-identification-number-shape?`,
+  `valid-institution-identification-number-shape?`,
+  `parse-card-identification-number` / `valid-card-identification-number?`.
 
 ### `us-naic/naic-glossary-company-code-excerpt.md`
 
